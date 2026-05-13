@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1" />
+  <meta name="theme-color" content="#0a0e1a" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Tuệ Finance — Quản lý tài chính cá nhân</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjM2I4MmY2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI1MCUiIHk9IjUyJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI4MCIgZm9udC13ZWlnaHQ9IjkwMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7igqs8L3RleHQ+PC9zdmc+" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tuệ Finance" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
+          },
+          colors: {
+            ink: {
+              50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
+              400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155',
+              800: '#1e293b', 900: '#0f172a', 950: '#0a0e1a'
+            },
+            brand: {
+              50:  '#eff6ff', 100: '#dbeafe', 400: '#60a5fa', 500: '#3b82f6',
+              600: '#2563eb', 700: '#1d4ed8'
+            },
+            accent: {
+              500: '#8b5cf6', 600: '#7c3aed'
+            }
+          },
+          boxShadow: {
+            soft: '0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04)',
+            lift: '0 10px 30px rgba(0,0,0,.10)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root { --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px); }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
+    }
+    /* Hide number input arrows */
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Custom scrollbar (desktop only) */
+    @media (hover: hover) {
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(148,163,184,.25); border-radius: 8px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,.5); }
+    }
+
+    /* Page transitions */
+    .page { animation: fadeUp .28s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Sheet (modal) transition */
+    .sheet-enter { animation: sheetUp .32s cubic-bezier(.2,.7,.2,1) both; }
+    .sheet-fade { animation: fade .2s ease-out both; }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Active nav indicator */
+    .nav-active { color: var(--nav-active-color, #3b82f6); }
+
+    /* Pretty number animation */
+    .tabular { font-variant-numeric: tabular-nums; }
+
+    /* Icon sizing */
+    [data-lucide] { width: 1em; height: 1em; stroke-width: 2; }
+
+    /* Hide scrollbar for horizontal scroll chips */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Skeleton */
+    .skeleton { background: linear-gradient(90deg, rgba(148,163,184,.08) 25%, rgba(148,163,184,.18) 37%, rgba(148,163,184,.08) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+    @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+    /* Disable text selection on chrome controls but allow in inputs */
+    .no-select { user-select: none; -webkit-user-select: none; }
+
+    /* Fab pulse */
+    .fab-shadow { box-shadow: 0 10px 30px rgba(59,130,246,.45), 0 4px 12px rgba(139,92,246,.3); }
+  </style>
+</head>
+<body class="bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-50 transition-colors">
+
+  <!-- App shell -->
+  <div id="app" class="min-h-screen flex flex-col max-w-[480px] mx-auto relative">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 dark:bg-ink-950/70 border-b border-ink-200/60 dark:border-ink-800/60" style="padding-top: var(--safe-top);">
+      <div class="px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 grid place-items-center text-white font-extrabold text-lg shadow-soft">₫</div>
+          <div class="leading-tight">
+            <div class="text-[15px] font-bold tracking-tight">Tuệ Finance</div>
+            <div id="header-sub" class="text-[11px] text-ink-500 dark:text-ink-400">Quản lý tài chính cá nhân</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button id="searchBtn" class="w-10 h-10 grid place-items-center rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800/60 active:scale-95 transition" aria-label="Tìm kiếm">
+            <i data-lucide="search" class="text-[18px]"></i>
+          </button>
+          <button id="themeBtn" class="w-10 h-10 grid place-items-center rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800/60 active:scale-95 transition" aria-label="Đổi theme">
+            <i data-lucide="moon" class="text-[18px] hidden dark:inline-flex"></i>
+            <i data-lucide="sun" class="text-[18px] inline-flex dark:hidden"></i>
+          </button>
+          <button id="menuBtn" class="w-10 h-10 grid place-items-center rounded-xl hover:bg-ink-100 dark:hover:bg-ink-800/60 active:scale-95 transition" aria-label="Cài đặt">
+            <i data-lucide="settings" class="text-[18px]"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="main" class="flex-1 px-4 pt-4 pb-32 overflow-x-hidden"></main>
+
+    <!-- Floating action button (contextual) -->
+    <button id="fab" class="hidden fixed bottom-24 right-4 z-30 w-14 h-14 rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-white grid place-items-center fab-shadow active:scale-95 transition" style="bottom: calc(96px + var(--safe-bottom));" aria-label="Thêm mới">
+      <i data-lucide="plus" class="text-2xl"></i>
+    </button>
+
+    <!-- Bottom navigation -->
+    <nav id="bottomNav" class="fixed bottom-0 inset-x-0 z-30 mx-auto max-w-[480px] bg-white/85 dark:bg-ink-950/85 backdrop-blur-xl border-t border-ink-200/60 dark:border-ink-800/60" style="padding-bottom: var(--safe-bottom);">
+      <div class="grid grid-cols-5 px-1">
+        <button data-tab="home" class="nav-btn flex flex-col items-center justify-center gap-1 py-2.5 active:scale-95 transition">
+          <i data-lucide="layout-grid" class="text-[20px]"></i>
+          <span class="text-[10px] font-medium">Tổng quan</span>
+        </button>
+        <button data-tab="cash" class="nav-btn flex flex-col items-center justify-center gap-1 py-2.5 active:scale-95 transition">
+          <i data-lucide="wallet" class="text-[20px]"></i>
+          <span class="text-[10px] font-medium">Dòng tiền</span>
+        </button>
+        <button data-tab="invest" class="nav-btn flex flex-col items-center justify-center gap-1 py-2.5 active:scale-95 transition">
+          <i data-lucide="piggy-bank" class="text-[20px]"></i>
+          <span class="text-[10px] font-medium">Đầu tư</span>
+        </button>
+        <button data-tab="stocks" class="nav-btn flex flex-col items-center justify-center gap-1 py-2.5 active:scale-95 transition">
+          <i data-lucide="trending-up" class="text-[20px]"></i>
+          <span class="text-[10px] font-medium">Chứng khoán</span>
+        </button>
+        <button data-tab="realestate" class="nav-btn flex flex-col items-center justify-center gap-1 py-2.5 active:scale-95 transition">
+          <i data-lucide="building-2" class="text-[20px]"></i>
+          <span class="text-[10px] font-medium">Bất động sản</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Modal mount -->
+    <div id="modal-root"></div>
+    <div id="toast-root" class="fixed bottom-28 inset-x-0 z-50 flex justify-center px-4 pointer-events-none" style="bottom: calc(112px + var(--safe-bottom));"></div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+  /* ============================================================
+     Tuệ Finance — App Logic
+     Architect: Lê Đình Chánh Tuệ (PhD) — CEO AIECOS
+     Single-file PWA: cash flow, investments, stocks, real estate
+  ============================================================ */
+
+  // ---------- Utilities ----------
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+  const fmtVND = (n) => (n == null || isNaN(n) ? '0' : Math.round(n).toLocaleString('vi-VN')) + ' ₫';
+  const fmtNum = (n) => (n == null || isNaN(n) ? '0' : Math.round(n).toLocaleString('vi-VN'));
+  const fmtPct = (n) => (n == null || isNaN(n) ? '0%' : (n >= 0 ? '+' : '') + n.toFixed(2) + '%');
+  const fmtDate = (iso) => { if (!iso) return ''; const d = new Date(iso); return d.toLocaleDateString('vi-VN'); };
+  const fmtDateShort = (iso) => { if (!iso) return ''; const d = new Date(iso); return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }); };
+  const parseNum = (v) => { if (typeof v === 'number') return v; if (!v) return 0; return parseFloat(String(v).replace(/[^\d.-]/g, '')) || 0; };
+  const monthKey = (iso) => iso ? iso.slice(0, 7) : '';
+  const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+
+  // ---------- Data layer ----------
+  const STORAGE_KEY = 'tue-finance-v1';
+  const DEFAULT_STATE = {
+    version: 1,
+    settings: { theme: 'dark', currency: 'VND' },
+    transactions: [], // {id, type:'income'|'expense', amount, category, date, note}
+    investments: [],  // {id, name, type, purchaseDate, purchaseValue, currentValue, note}
+    stocks: [],       // {id, ticker, quantity, costPrice, currentPrice, note}
+    realestates: [],  // {id, address, type, purchasePrice, marketPrice, monthlyRent, note}
+  };
+
+  const DB = {
+    state: structuredClone(DEFAULT_STATE),
+    load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          this.state = { ...structuredClone(DEFAULT_STATE), ...parsed,
+            settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) } };
+        } else {
+          this.seed();
+          this.save();
+        }
+      } catch (e) {
+        console.warn('Failed to load state, resetting', e);
+        this.state = structuredClone(DEFAULT_STATE);
+        this.seed();
+      }
+    },
+    save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state)); } catch (e) { console.error(e); }
+    },
+    reset() {
+      this.state = structuredClone(DEFAULT_STATE);
+      this.save();
+    },
+    seed() {
+      // Demo seed data — realistic for a Vietnamese consultant
+      const T = this.state.transactions;
+      const today = new Date();
+      const ago = (d) => { const x = new Date(today); x.setDate(x.getDate() - d); return x.toISOString().slice(0,10); };
+      T.push(
+        { id: uid(), type: 'income',  amount: 45000000, category: 'Lương',     date: ago(1),  note: 'Lương tháng' },
+        { id: uid(), type: 'income',  amount: 22000000, category: 'Tư vấn',    date: ago(3),  note: 'Dự án AI cho khách hàng' },
+        { id: uid(), type: 'expense', amount: 350000,   category: 'Ăn uống',   date: ago(0),  note: 'Cơm trưa cùng team' },
+        { id: uid(), type: 'expense', amount: 1200000,  category: 'Hóa đơn',   date: ago(2),  note: 'Điện + nước' },
+        { id: uid(), type: 'expense', amount: 4500000,  category: 'Giáo dục',  date: ago(4),  note: 'Khóa học Anthropic API' },
+        { id: uid(), type: 'expense', amount: 180000,   category: 'Đi lại',    date: ago(5),  note: 'Grab công tác' },
+        { id: uid(), type: 'expense', amount: 2400000,  category: 'Mua sắm',   date: ago(7),  note: 'Bàn phím cơ' },
+        { id: uid(), type: 'expense', amount: 800000,   category: 'Giải trí',  date: ago(9),  note: 'Phim + ăn uống cuối tuần' },
+        { id: uid(), type: 'income',  amount: 8000000,  category: 'Đầu tư',    date: ago(12), note: 'Cổ tức quỹ mở' },
+        { id: uid(), type: 'expense', amount: 6500000,  category: 'Hóa đơn',   date: ago(15), note: 'Tiền thuê văn phòng' },
+        { id: uid(), type: 'expense', amount: 1800000,  category: 'Y tế',      date: ago(18), note: 'Khám sức khỏe định kỳ' },
+        { id: uid(), type: 'income',  amount: 12000000, category: 'Thưởng',   date: ago(22), note: 'Bonus dự án Q1' },
+        { id: uid(), type: 'expense', amount: 420000,   category: 'Ăn uống',   date: ago(25), note: 'Đi ăn với khách hàng' },
+        { id: uid(), type: 'expense', amount: 3200000,  category: 'Khác',      date: ago(28), note: 'Quà tặng đối tác' }
+      );
+
+      this.state.investments.push(
+        { id: uid(), name: 'Tiết kiệm Techcombank', type: 'Tiết kiệm', purchaseDate: '2025-09-01', purchaseValue: 200000000, currentValue: 210400000, note: 'Kỳ hạn 12 tháng, 5.2%/năm' },
+        { id: uid(), name: 'Vàng SJC',              type: 'Vàng',      purchaseDate: '2025-06-15', purchaseValue: 150000000, currentValue: 178000000, note: '2 lượng vàng miếng' },
+        { id: uid(), name: 'Bitcoin',               type: 'Crypto',    purchaseDate: '2024-11-10', purchaseValue: 80000000,  currentValue: 132000000, note: 'Mua DCA qua Binance' },
+        { id: uid(), name: 'VESAF — VinaCapital',   type: 'Quỹ mở',    purchaseDate: '2025-03-20', purchaseValue: 100000000, currentValue: 114500000, note: 'Quỹ cổ phiếu tăng trưởng' }
+      );
+
+      this.state.stocks.push(
+        { id: uid(), ticker: 'FPT',  quantity: 500,  costPrice: 95000,  currentPrice: 128000, note: 'Cổ phiếu công nghệ — nắm dài hạn' },
+        { id: uid(), ticker: 'VNM',  quantity: 300,  costPrice: 72000,  currentPrice: 68500,  note: 'Sữa Vinamilk — phòng thủ' },
+        { id: uid(), ticker: 'HPG',  quantity: 1000, costPrice: 22500,  currentPrice: 26800,  note: 'Hòa Phát — chu kỳ thép' },
+        { id: uid(), ticker: 'MWG',  quantity: 200,  costPrice: 48000,  currentPrice: 58200,  note: 'Thế Giới Di Động' },
+        { id: uid(), ticker: 'TCB',  quantity: 800,  costPrice: 24500,  currentPrice: 27800,  note: 'Techcombank' }
+      );
+
+      this.state.realestates.push(
+        { id: uid(), address: '12 Nguyễn Huệ, Q.1, TP.HCM', type: 'Căn hộ',  purchasePrice: 4500000000, marketPrice: 5800000000, monthlyRent: 25000000, note: 'Cho thuê dài hạn' },
+        { id: uid(), address: '88 Lý Thường Kiệt, Q.10',     type: 'Nhà phố', purchasePrice: 8200000000, marketPrice: 9500000000, monthlyRent: 35000000, note: 'Ở + cho thuê tầng trệt' },
+        { id: uid(), address: 'Lô A4, KDC Vạn Phúc, Thủ Đức', type: 'Đất nền', purchasePrice: 2800000000, marketPrice: 3650000000, monthlyRent: 0,         note: 'Đầu tư dài hạn' }
+      );
+    }
+  };
+
+  // ---------- Categories ----------
+  const CATEGORIES = {
+    income:  ['Lương', 'Thưởng', 'Tư vấn', 'Đầu tư', 'Quà tặng', 'Khác'],
+    expense: ['Ăn uống', 'Đi lại', 'Mua sắm', 'Hóa đơn', 'Y tế', 'Giáo dục', 'Giải trí', 'Du lịch', 'Gia đình', 'Khác']
+  };
+  const INVEST_TYPES = ['Tiết kiệm', 'Vàng', 'Crypto', 'Quỹ mở', 'Trái phiếu', 'Ngoại tệ', 'Khác'];
+  const RE_TYPES = ['Căn hộ', 'Nhà phố', 'Đất nền', 'Biệt thự', 'Shophouse', 'Khác'];
+  const CAT_ICONS = {
+    'Lương': 'briefcase', 'Thưởng': 'gift', 'Tư vấn': 'handshake', 'Đầu tư': 'trending-up',
+    'Quà tặng': 'gift', 'Ăn uống': 'utensils', 'Đi lại': 'car', 'Mua sắm': 'shopping-bag',
+    'Hóa đơn': 'receipt', 'Y tế': 'heart-pulse', 'Giáo dục': 'graduation-cap',
+    'Giải trí': 'gamepad-2', 'Du lịch': 'plane', 'Gia đình': 'home', 'Khác': 'circle-dot'
+  };
+
+  // ---------- App state (UI) ----------
+  const App = {
+    currentTab: 'home',
+    monthFilter: monthKey(todayISO()),
+    catFilter: 'all',
+    searchQ: '',
+    chartInstances: {},
+
+    init() {
+      DB.load();
+      this.applyTheme();
+      this.bindGlobalEvents();
+      this.refreshIcons();
+      this.switchTab('home');
+      this.registerSW();
+    },
+
+    registerSW() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      }
+    },
+
+    applyTheme() {
+      const t = DB.state.settings.theme;
+      document.documentElement.classList.toggle('dark', t === 'dark');
+      this.refreshIcons();
+    },
+
+    bindGlobalEvents() {
+      // Bottom nav
+      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => this.switchTab(btn.dataset.tab)));
+      // Header
+      $('#themeBtn').addEventListener('click', () => {
+        DB.state.settings.theme = DB.state.settings.theme === 'dark' ? 'light' : 'dark';
+        DB.save();
+        this.applyTheme();
+        this.render(); // re-render charts with new theme colors
+      });
+      $('#menuBtn').addEventListener('click', () => this.openSettings());
+      $('#searchBtn').addEventListener('click', () => this.openSearch());
+      // FAB
+      $('#fab').addEventListener('click', () => this.handleFab());
+    },
+
+    refreshIcons() {
+      if (window.lucide && lucide.createIcons) lucide.createIcons();
+    },
+
+    switchTab(tab) {
+      this.currentTab = tab;
+      $$('.nav-btn').forEach(b => {
+        const active = b.dataset.tab === tab;
+        b.classList.toggle('text-brand-500', active);
+        b.classList.toggle('dark:text-brand-400', active);
+        b.classList.toggle('text-ink-500', !active);
+        b.classList.toggle('dark:text-ink-400', !active);
+      });
+      const sub = { home: 'Tổng quan tài sản', cash: 'Dòng tiền hàng ngày', invest: 'Danh mục đầu tư', stocks: 'Danh mục cổ phiếu', realestate: 'Bất động sản' }[tab];
+      $('#header-sub').textContent = sub || '';
+      $('#fab').style.display = (tab === 'home') ? 'none' : 'flex';
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    },
+
+    handleFab() {
+      if (this.currentTab === 'cash') openTxModal();
+      else if (this.currentTab === 'invest') openInvestModal();
+      else if (this.currentTab === 'stocks') openStockModal();
+      else if (this.currentTab === 'realestate') openREModal();
+    },
+
+    render() {
+      // Destroy charts to prevent memory leaks
+      Object.values(this.chartInstances).forEach(c => c?.destroy?.());
+      this.chartInstances = {};
+      const main = $('#main');
+      main.innerHTML = '';
+      const view = document.createElement('div');
+      view.className = 'page';
+      main.appendChild(view);
+      if (this.currentTab === 'home') renderHome(view);
+      else if (this.currentTab === 'cash') renderCash(view);
+      else if (this.currentTab === 'invest') renderInvest(view);
+      else if (this.currentTab === 'stocks') renderStocks(view);
+      else if (this.currentTab === 'realestate') renderRealEstate(view);
+      this.refreshIcons();
+    },
+
+    openSettings() { openSettingsSheet(); },
+    openSearch()   { openSearchSheet(); }
+  };
+
+  // ---------- Derived calculations ----------
+  function calcCashBalance() {
+    return DB.state.transactions.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0);
+  }
+  function calcInvestTotals() {
+    let cost = 0, current = 0;
+    DB.state.investments.forEach(i => { cost += i.purchaseValue; current += i.currentValue; });
+    return { cost, current, pl: current - cost, plPct: cost ? (current - cost) / cost * 100 : 0 };
+  }
+  function calcStockTotals() {
+    let cost = 0, current = 0;
+    DB.state.stocks.forEach(s => { cost += s.costPrice * s.quantity; current += s.currentPrice * s.quantity; });
+    return { cost, current, pl: current - cost, plPct: cost ? (current - cost) / cost * 100 : 0 };
+  }
+  function calcRETotals() {
+    let cost = 0, market = 0, rent = 0;
+    DB.state.realestates.forEach(r => { cost += r.purchasePrice; market += r.marketPrice; rent += r.monthlyRent; });
+    return { cost, market, rent, pl: market - cost, plPct: cost ? (market - cost) / cost * 100 : 0, yearlyRoi: cost ? (rent * 12) / cost * 100 : 0 };
+  }
+  function calcNetWorth() {
+    const cash = calcCashBalance();
+    const inv  = calcInvestTotals().current;
+    const stk  = calcStockTotals().current;
+    const re   = calcRETotals().market;
+    return { cash, inv, stk, re, total: cash + inv + stk + re };
+  }
+
+  /* ============================================================
+     RENDERERS
+  ============================================================ */
+
+  // ---------- HOME / Dashboard ----------
+  function renderHome(view) {
+    const nw = calcNetWorth();
+    const inv = calcInvestTotals();
+    const stk = calcStockTotals();
+    const re  = calcRETotals();
+
+    // Month income/expense
+    const m = monthKey(todayISO());
+    let mIn = 0, mOut = 0;
+    DB.state.transactions.forEach(t => {
+      if (monthKey(t.date) === m) { t.type === 'income' ? mIn += t.amount : mOut += t.amount; }
+    });
+
+    view.innerHTML = `
+      <!-- Net worth hero -->
+      <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-accent-500 p-5 text-white shadow-lift">
+        <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="absolute right-6 bottom-2 opacity-20"><i data-lucide="gem" class="text-[120px]"></i></div>
+        <div class="text-[12px] uppercase tracking-widest opacity-80">Tổng tài sản ròng</div>
+        <div class="mt-1 text-3xl font-extrabold tabular tracking-tight">${fmtVND(nw.total)}</div>
+        <div class="mt-1 text-[13px] opacity-90">${new Date().toLocaleDateString('vi-VN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' })}</div>
+
+        <div class="mt-5 grid grid-cols-2 gap-2.5">
+          ${miniStat('Tiền mặt', nw.cash, 'wallet')}
+          ${miniStat('Đầu tư', nw.inv, 'piggy-bank')}
+          ${miniStat('Chứng khoán', nw.stk, 'trending-up')}
+          ${miniStat('BĐS', nw.re, 'building-2')}
+        </div>
+      </section>
+
+      <!-- Allocation donut -->
+      <section class="mt-4 rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400">Phân bổ tài sản</div>
+            <div class="text-base font-bold">${fmtVND(nw.total)}</div>
+          </div>
+          <span class="text-[11px] px-2 py-1 rounded-full bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300">4 lớp</span>
+        </div>
+        <div class="relative h-[200px]"><canvas id="allocationChart"></canvas></div>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-[12px]">
+          ${legendDot('#3b82f6', 'Tiền mặt', nw.cash, nw.total)}
+          ${legendDot('#10b981', 'Đầu tư', nw.inv, nw.total)}
+          ${legendDot('#f59e0b', 'Chứng khoán', nw.stk, nw.total)}
+          ${legendDot('#8b5cf6', 'BĐS', nw.re, nw.total)}
+        </div>
+      </section>
+
+      <!-- This month summary -->
+      <section class="mt-4 rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400">Tháng này</div>
+            <div class="text-base font-bold">${new Date().toLocaleDateString('vi-VN', { month:'long', year:'numeric' })}</div>
+          </div>
+          <button onclick="App.switchTab('cash')" class="text-[12px] text-brand-600 dark:text-brand-400 font-semibold flex items-center gap-1">Chi tiết <i data-lucide="chevron-right" class="text-[14px]"></i></button>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 p-3">
+            <div class="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold">Thu</div>
+            <div class="text-[15px] font-bold text-emerald-600 dark:text-emerald-400 tabular">${fmtVND(mIn)}</div>
+          </div>
+          <div class="rounded-xl bg-rose-50 dark:bg-rose-500/10 p-3">
+            <div class="text-[11px] text-rose-700 dark:text-rose-300 font-semibold">Chi</div>
+            <div class="text-[15px] font-bold text-rose-600 dark:text-rose-400 tabular">${fmtVND(mOut)}</div>
+          </div>
+          <div class="rounded-xl bg-brand-50 dark:bg-brand-500/10 p-3">
+            <div class="text-[11px] text-brand-700 dark:text-brand-300 font-semibold">Số dư</div>
+            <div class="text-[15px] font-bold text-brand-600 dark:text-brand-400 tabular">${fmtVND(mIn - mOut)}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Snapshot per module -->
+      <section class="mt-4 grid grid-cols-1 gap-3">
+        ${snapshotCard('Đầu tư khác', inv.current, inv.pl, inv.plPct, 'piggy-bank', '#10b981', 'invest')}
+        ${snapshotCard('Chứng khoán', stk.current, stk.pl, stk.plPct, 'trending-up', '#f59e0b', 'stocks')}
+        ${snapshotCard('Bất động sản', re.market, re.pl, re.plPct, 'building-2', '#8b5cf6', 'realestate', re.yearlyRoi)}
+      </section>
+
+      <!-- Recent transactions -->
+      <section class="mt-4 rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400">Giao dịch gần đây</div>
+          <button onclick="App.switchTab('cash')" class="text-[12px] text-brand-600 dark:text-brand-400 font-semibold flex items-center gap-1">Xem tất cả <i data-lucide="chevron-right" class="text-[14px]"></i></button>
+        </div>
+        <div class="space-y-2.5">
+          ${DB.state.transactions.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(txRow).join('') || emptyHint('Chưa có giao dịch nào.')}
+        </div>
+      </section>
+    `;
+
+    // Build chart
+    setTimeout(() => buildAllocationChart(nw), 0);
+  }
+
+  function miniStat(label, value, icon) {
+    return `
+      <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+        <div class="flex items-center gap-1.5 text-[11px] opacity-90"><i data-lucide="${icon}" class="text-[13px]"></i>${label}</div>
+        <div class="mt-1 text-[15px] font-bold tabular truncate">${fmtVND(value)}</div>
+      </div>`;
+  }
+
+  function legendDot(color, label, value, total) {
+    const pct = total ? (value / total * 100) : 0;
+    return `
+      <div class="flex items-center gap-2 rounded-lg bg-ink-50 dark:bg-ink-800/40 px-2.5 py-2">
+        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${color}"></span>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-ink-500 dark:text-ink-400 truncate">${label}</div>
+          <div class="text-[12px] font-semibold tabular">${pct.toFixed(1)}%</div>
+        </div>
+      </div>`;
+  }
+
+  function snapshotCard(label, value, pl, plPct, icon, color, tab, extraRoi) {
+    const positive = pl >= 0;
+    return `
+      <button onclick="App.switchTab('${tab}')" class="text-left w-full rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4 hover:shadow-soft active:scale-[.99] transition">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl grid place-items-center flex-shrink-0" style="background:${color}1a;color:${color}"><i data-lucide="${icon}" class="text-[18px]"></i></div>
+            <div class="min-w-0">
+              <div class="text-[12px] text-ink-500 dark:text-ink-400">${label}</div>
+              <div class="text-[15px] font-bold tabular truncate">${fmtVND(value)}</div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-semibold tabular ${positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${fmtPct(plPct)}</div>
+            <div class="text-[11px] text-ink-500 dark:text-ink-400 tabular">${positive ? '+' : ''}${fmtVND(pl)}</div>
+            ${extraRoi != null ? `<div class="text-[10px] text-ink-400 mt-0.5">ROI thuê ${extraRoi.toFixed(2)}%/năm</div>` : ''}
+          </div>
+        </div>
+      </button>`;
+  }
+
+  function buildAllocationChart(nw) {
+    const ctx = document.getElementById('allocationChart');
+    if (!ctx) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    const data = [nw.cash, nw.inv, nw.stk, nw.re].map(v => Math.max(v, 0));
+    App.chartInstances.allocation = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Tiền mặt', 'Đầu tư', 'Chứng khoán', 'BĐS'],
+        datasets: [{
+          data: data,
+          backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+          borderColor: isDark ? '#0a0e1a' : '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: (c) => `${c.label}: ${fmtVND(c.parsed)}` }
+          }
+        }
+      }
+    });
+  }
+
+  function txRow(t) {
+    const isIncome = t.type === 'income';
+    const icon = CAT_ICONS[t.category] || 'circle-dot';
+    return `
+      <div onclick="openTxModal('${t.id}')" class="flex items-center gap-3 py-2 hover:bg-ink-50 dark:hover:bg-ink-800/40 rounded-lg px-1 -mx-1 cursor-pointer">
+        <div class="w-9 h-9 rounded-xl grid place-items-center flex-shrink-0 ${isIncome ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'}">
+          <i data-lucide="${icon}" class="text-[16px]"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[13px] font-semibold truncate">${escapeHTML(t.category)}</div>
+          <div class="text-[11px] text-ink-500 dark:text-ink-400 truncate">${escapeHTML(t.note || '')} · ${fmtDateShort(t.date)}</div>
+        </div>
+        <div class="text-[13px] font-bold tabular flex-shrink-0 ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+          ${isIncome ? '+' : '-'}${fmtVND(t.amount)}
+        </div>
+      </div>`;
+  }
+
+  function emptyHint(msg) {
+    return `<div class="text-center py-8 text-ink-400 text-[13px]">${msg}</div>`;
+  }
+
+  // ---------- CASH FLOW ----------
+  function renderCash(view) {
+    const months = uniqueMonths();
+    const m = App.monthFilter || months[0] || monthKey(todayISO());
+    if (!App.monthFilter) App.monthFilter = m;
+    const txs = DB.state.transactions.filter(t => monthKey(t.date) === m && (App.catFilter === 'all' || t.category === App.catFilter));
+
+    let inc = 0, exp = 0;
+    DB.state.transactions.forEach(t => { if (monthKey(t.date) === m) { t.type === 'income' ? inc += t.amount : exp += t.amount; } });
+    const bal = inc - exp;
+
+    // Build last 6 months series
+    const series = buildMonthlySeries(6);
+
+    view.innerHTML = `
+      <!-- Top summary -->
+      <section class="rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lift relative overflow-hidden">
+        <div class="absolute right-6 bottom-2 opacity-20"><i data-lucide="wallet" class="text-[110px]"></i></div>
+        <div class="text-[12px] uppercase tracking-widest opacity-80">Số dư tháng ${m.split('-')[1]}/${m.split('-')[0]}</div>
+        <div class="mt-1 text-3xl font-extrabold tabular tracking-tight ${bal >= 0 ? '' : 'opacity-90'}">${fmtVND(bal)}</div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="flex items-center gap-1.5 text-[11px] opacity-90"><i data-lucide="arrow-down-circle" class="text-[14px]"></i>Thu nhập</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${fmtVND(inc)}</div>
+          </div>
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="flex items-center gap-1.5 text-[11px] opacity-90"><i data-lucide="arrow-up-circle" class="text-[14px]"></i>Chi tiêu</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${fmtVND(exp)}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chart -->
+      <section class="mt-4 rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400">Thu - Chi 6 tháng</div>
+            <div class="text-[13px] text-ink-500 dark:text-ink-400">Theo dõi xu hướng dòng tiền</div>
+          </div>
+          <div class="flex items-center gap-3 text-[11px]">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span>Thu</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-rose-500"></span>Chi</span>
+          </div>
+        </div>
+        <div class="h-[220px]"><canvas id="cashChart"></canvas></div>
+      </section>
+
+      <!-- Filters -->
+      <section class="mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Lịch sử giao dịch</div>
+          <div class="text-[12px] text-ink-500 dark:text-ink-400 tabular">${txs.length} giao dịch</div>
+        </div>
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+          <select id="monthFilter" class="bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 rounded-xl px-3 py-2 text-[13px] font-medium">
+            ${months.map(mm => `<option value="${mm}" ${mm===m?'selected':''}>${mm.split('-')[1]}/${mm.split('-')[0]}</option>`).join('') || `<option>${m}</option>`}
+          </select>
+          <select id="catFilter" class="bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 rounded-xl px-3 py-2 text-[13px] font-medium">
+            <option value="all">Tất cả danh mục</option>
+            ${[...CATEGORIES.income, ...CATEGORIES.expense].map(c => `<option value="${c}" ${c===App.catFilter?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+      </section>
+
+      <!-- Transaction list grouped by date -->
+      <section class="mt-3 rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4">
+        ${groupByDate(txs)}
+      </section>
+    `;
+
+    $('#monthFilter')?.addEventListener('change', (e) => { App.monthFilter = e.target.value; App.render(); });
+    $('#catFilter')?.addEventListener('change', (e) => { App.catFilter = e.target.value; App.render(); });
+
+    setTimeout(() => buildCashChart(series), 0);
+  }
+
+  function uniqueMonths() {
+    const set = new Set(DB.state.transactions.map(t => monthKey(t.date)).filter(Boolean));
+    set.add(monthKey(todayISO()));
+    return Array.from(set).sort().reverse();
+  }
+
+  function buildMonthlySeries(n) {
+    const arr = [];
+    const today = new Date();
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const key = d.toISOString().slice(0, 7);
+      let inc = 0, exp = 0;
+      DB.state.transactions.forEach(t => { if (monthKey(t.date) === key) { t.type === 'income' ? inc += t.amount : exp += t.amount; } });
+      arr.push({ label: `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`, inc, exp });
+    }
+    return arr;
+  }
+
+  function buildCashChart(series) {
+    const ctx = document.getElementById('cashChart'); if (!ctx) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    const grid = isDark ? 'rgba(148,163,184,.12)' : 'rgba(100,116,139,.15)';
+    const tick = isDark ? '#94a3b8' : '#64748b';
+    App.chartInstances.cash = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: series.map(s => s.label),
+        datasets: [
+          { label: 'Thu', data: series.map(s => s.inc), backgroundColor: '#10b981', borderRadius: 6, maxBarThickness: 22 },
+          { label: 'Chi', data: series.map(s => s.exp), backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 22 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmtVND(c.parsed.y)}` } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 10 }, callback: (v) => v >= 1e6 ? (v/1e6).toFixed(0) + 'tr' : v >= 1e3 ? (v/1e3).toFixed(0) + 'k' : v } }
+        }
+      }
+    });
+  }
+
+  function groupByDate(txs) {
+    if (!txs.length) return emptyHint('Không có giao dịch trong khoảng này.');
+    const groups = {};
+    txs.sort((a, b) => b.date.localeCompare(a.date)).forEach(t => { (groups[t.date] = groups[t.date] || []).push(t); });
+    return Object.keys(groups).map(date => {
+      let inc = 0, exp = 0; groups[date].forEach(t => t.type === 'income' ? inc += t.amount : exp += t.amount);
+      const net = inc - exp;
+      return `
+        <div class="mb-3 last:mb-0">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-[11px] font-bold text-ink-500 dark:text-ink-400 uppercase tracking-widest">${fmtDate(date)}</div>
+            <div class="text-[11px] tabular ${net >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} font-semibold">${net >= 0 ? '+' : ''}${fmtVND(net)}</div>
+          </div>
+          <div class="space-y-1">${groups[date].map(txRow).join('')}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---------- INVESTMENTS ----------
+  function renderInvest(view) {
+    const t = calcInvestTotals();
+    const positive = t.pl >= 0;
+    const items = DB.state.investments.slice().sort((a, b) => (b.purchaseDate || '').localeCompare(a.purchaseDate || ''));
+
+    view.innerHTML = `
+      <section class="rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-5 text-white shadow-lift relative overflow-hidden">
+        <div class="absolute right-6 bottom-2 opacity-20"><i data-lucide="piggy-bank" class="text-[110px]"></i></div>
+        <div class="text-[12px] uppercase tracking-widest opacity-80">Giá trị danh mục đầu tư</div>
+        <div class="mt-1 text-3xl font-extrabold tabular tracking-tight">${fmtVND(t.current)}</div>
+        <div class="mt-1 text-[13px] opacity-90">Vốn gốc: ${fmtVND(t.cost)}</div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[11px] opacity-90">Lãi/Lỗ</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${positive ? '+' : ''}${fmtVND(t.pl)}</div>
+          </div>
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[11px] opacity-90">Hiệu suất</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${fmtPct(t.plPct)}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Danh sách khoản đầu tư</div>
+          <div class="text-[12px] text-ink-500 dark:text-ink-400">${items.length} khoản</div>
+        </div>
+        <div class="space-y-2.5">
+          ${items.map(investCard).join('') || emptyHint('Chưa có khoản đầu tư nào. Nhấn + để thêm.')}
+        </div>
+      </section>
+    `;
+  }
+
+  function investCard(i) {
+    const pl = i.currentValue - i.purchaseValue;
+    const plPct = i.purchaseValue ? pl / i.purchaseValue * 100 : 0;
+    const pos = pl >= 0;
+    const iconMap = { 'Tiết kiệm':'banknote', 'Vàng':'coins', 'Crypto':'bitcoin', 'Quỹ mở':'layers', 'Trái phiếu':'file-text', 'Ngoại tệ':'dollar-sign', 'Khác':'circle-dot' };
+    const icon = iconMap[i.type] || 'circle-dot';
+    return `
+      <div onclick="openInvestModal('${i.id}')" class="rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4 hover:shadow-soft active:scale-[.99] cursor-pointer transition">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 grid place-items-center flex-shrink-0">
+              <i data-lucide="${icon}" class="text-[18px]"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-[14px] font-bold truncate">${escapeHTML(i.name)}</div>
+              <div class="text-[11px] text-ink-500 dark:text-ink-400 truncate">${escapeHTML(i.type)} · ${fmtDate(i.purchaseDate)}</div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[14px] font-bold tabular">${fmtVND(i.currentValue)}</div>
+            <div class="text-[11px] tabular font-semibold ${pos ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${fmtPct(plPct)} · ${pos ? '+' : ''}${fmtVND(pl)}</div>
+          </div>
+        </div>
+        ${i.note ? `<div class="mt-2 text-[12px] text-ink-500 dark:text-ink-400 line-clamp-2">${escapeHTML(i.note)}</div>` : ''}
+      </div>`;
+  }
+
+  // ---------- STOCKS ----------
+  function renderStocks(view) {
+    const t = calcStockTotals();
+    const positive = t.pl >= 0;
+    const items = DB.state.stocks.slice().sort((a, b) => a.ticker.localeCompare(b.ticker));
+
+    view.innerHTML = `
+      <section class="rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 text-white shadow-lift relative overflow-hidden">
+        <div class="absolute right-6 bottom-2 opacity-20"><i data-lucide="trending-up" class="text-[110px]"></i></div>
+        <div class="text-[12px] uppercase tracking-widest opacity-80">Giá trị danh mục cổ phiếu</div>
+        <div class="mt-1 text-3xl font-extrabold tabular tracking-tight">${fmtVND(t.current)}</div>
+        <div class="mt-1 text-[13px] opacity-90">Vốn gốc: ${fmtVND(t.cost)}</div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[11px] opacity-90">Lãi/Lỗ</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${positive ? '+' : ''}${fmtVND(t.pl)}</div>
+          </div>
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[11px] opacity-90">Hiệu suất</div>
+            <div class="mt-1 text-[16px] font-bold tabular">${fmtPct(t.plPct)}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Danh mục cổ phiếu</div>
+          <div class="text-[12px] text-ink-500 dark:text-ink-400">${items.length} mã</div>
+        </div>
+        <div class="space-y-2.5">
+          ${items.map(stockCard).join('') || emptyHint('Chưa có cổ phiếu nào. Nhấn + để thêm.')}
+        </div>
+      </section>
+    `;
+  }
+
+  function stockCard(s) {
+    const cost = s.costPrice * s.quantity;
+    const value = s.currentPrice * s.quantity;
+    const pl = value - cost;
+    const plPct = cost ? pl / cost * 100 : 0;
+    const pos = pl >= 0;
+    return `
+      <div onclick="openStockModal('${s.id}')" class="rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4 hover:shadow-soft active:scale-[.99] cursor-pointer transition">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 grid place-items-center font-extrabold tracking-tight text-[13px] flex-shrink-0">${escapeHTML(s.ticker)}</div>
+            <div class="min-w-0">
+              <div class="text-[14px] font-bold">${escapeHTML(s.ticker)} <span class="text-[11px] text-ink-500 dark:text-ink-400 font-medium">× ${fmtNum(s.quantity)} cp</span></div>
+              <div class="text-[11px] text-ink-500 dark:text-ink-400 tabular">Vốn ${fmtNum(s.costPrice)} ₫ · Hiện tại ${fmtNum(s.currentPrice)} ₫</div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[14px] font-bold tabular">${fmtVND(value)}</div>
+            <div class="text-[11px] tabular font-semibold ${pos ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${fmtPct(plPct)} · ${pos ? '+' : ''}${fmtVND(pl)}</div>
+          </div>
+        </div>
+        ${s.note ? `<div class="mt-2 text-[12px] text-ink-500 dark:text-ink-400 line-clamp-2">${escapeHTML(s.note)}</div>` : ''}
+      </div>`;
+  }
+
+  // ---------- REAL ESTATE ----------
+  function renderRealEstate(view) {
+    const t = calcRETotals();
+    const positive = t.pl >= 0;
+    const items = DB.state.realestates.slice();
+
+    view.innerHTML = `
+      <section class="rounded-3xl bg-gradient-to-br from-violet-500 to-purple-700 p-5 text-white shadow-lift relative overflow-hidden">
+        <div class="absolute right-6 bottom-2 opacity-20"><i data-lucide="building-2" class="text-[110px]"></i></div>
+        <div class="text-[12px] uppercase tracking-widest opacity-80">Giá trị thị trường BĐS</div>
+        <div class="mt-1 text-3xl font-extrabold tabular tracking-tight">${fmtVND(t.market)}</div>
+        <div class="mt-1 text-[13px] opacity-90">Tổng vốn mua: ${fmtVND(t.cost)}</div>
+        <div class="mt-4 grid grid-cols-3 gap-2.5">
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[10px] opacity-90">Lãi vốn</div>
+            <div class="mt-0.5 text-[13px] font-bold tabular">${positive ? '+' : ''}${fmtVND(t.pl)}</div>
+          </div>
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[10px] opacity-90">Thuê/tháng</div>
+            <div class="mt-0.5 text-[13px] font-bold tabular">${fmtVND(t.rent)}</div>
+          </div>
+          <div class="rounded-2xl bg-white/15 backdrop-blur-sm p-3 border border-white/10">
+            <div class="text-[10px] opacity-90">ROI thuê</div>
+            <div class="mt-0.5 text-[13px] font-bold tabular">${t.yearlyRoi.toFixed(2)}%</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[13px] font-bold">Danh sách BĐS</div>
+          <div class="text-[12px] text-ink-500 dark:text-ink-400">${items.length} tài sản</div>
+        </div>
+        <div class="space-y-2.5">
+          ${items.map(reCard).join('') || emptyHint('Chưa có BĐS nào. Nhấn + để thêm.')}
+        </div>
+      </section>
+    `;
+  }
+
+  function reCard(r) {
+    const pl = r.marketPrice - r.purchasePrice;
+    const plPct = r.purchasePrice ? pl / r.purchasePrice * 100 : 0;
+    const yearlyRoi = r.purchasePrice ? (r.monthlyRent * 12) / r.purchasePrice * 100 : 0;
+    const totalRoi = plPct + yearlyRoi;
+    const pos = pl >= 0;
+    const iconMap = { 'Căn hộ': 'building', 'Nhà phố': 'home', 'Đất nền': 'map', 'Biệt thự': 'castle', 'Shophouse': 'store', 'Khác': 'building-2' };
+    const icon = iconMap[r.type] || 'building-2';
+    return `
+      <div onclick="openREModal('${r.id}')" class="rounded-2xl bg-white dark:bg-ink-900/80 border border-ink-200 dark:border-ink-800 p-4 hover:shadow-soft active:scale-[.99] cursor-pointer transition">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 grid place-items-center flex-shrink-0">
+              <i data-lucide="${icon}" class="text-[18px]"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-[14px] font-bold leading-tight">${escapeHTML(r.address)}</div>
+              <div class="text-[11px] text-ink-500 dark:text-ink-400 mt-0.5">${escapeHTML(r.type)}</div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[14px] font-bold tabular">${fmtVND(r.marketPrice)}</div>
+            <div class="text-[11px] tabular font-semibold ${pos ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${fmtPct(plPct)}</div>
+          </div>
+        </div>
+        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-2">
+            <div class="text-[10px] text-ink-500 dark:text-ink-400">Mua</div>
+            <div class="text-[11px] font-bold tabular">${fmtVND(r.purchasePrice)}</div>
+          </div>
+          <div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-2">
+            <div class="text-[10px] text-ink-500 dark:text-ink-400">Thuê/th</div>
+            <div class="text-[11px] font-bold tabular">${fmtVND(r.monthlyRent)}</div>
+          </div>
+          <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 p-2">
+            <div class="text-[10px] text-emerald-700 dark:text-emerald-300">ROI/năm</div>
+            <div class="text-[11px] font-bold tabular text-emerald-600 dark:text-emerald-400">${yearlyRoi.toFixed(2)}%</div>
+          </div>
+        </div>
+        ${r.note ? `<div class="mt-2 text-[12px] text-ink-500 dark:text-ink-400 line-clamp-2">${escapeHTML(r.note)}</div>` : ''}
+      </div>`;
+  }
+
+  /* ============================================================
+     MODALS (Bottom sheets)
+  ============================================================ */
+  function mountSheet(html, opts = {}) {
+    const root = $('#modal-root');
+    const id = uid();
+    root.insertAdjacentHTML('beforeend', `
+      <div id="sheet-${id}" class="fixed inset-0 z-50 flex items-end justify-center">
+        <div class="absolute inset-0 bg-black/50 sheet-fade" data-close></div>
+        <div class="relative w-full max-w-[480px] bg-white dark:bg-ink-900 rounded-t-3xl shadow-lift sheet-enter overflow-hidden" style="max-height: 90vh;">
+          <div class="sticky top-0 z-10 pt-3 pb-2 bg-white dark:bg-ink-900">
+            <div class="mx-auto w-10 h-1.5 rounded-full bg-ink-200 dark:bg-ink-700"></div>
+          </div>
+          <div class="overflow-y-auto px-5 pb-8" style="max-height: calc(90vh - 24px); padding-bottom: calc(env(safe-area-inset-bottom) + 32px);">${html}</div>
+        </div>
+      </div>
+    `);
+    const sheet = $(`#sheet-${id}`);
+    const close = () => { sheet.querySelector('[data-close]').classList.remove('sheet-fade'); sheet.querySelector('.sheet-enter').style.transform = 'translateY(100%)'; sheet.querySelector('.sheet-enter').style.transition = 'transform .28s'; sheet.querySelector('[data-close]').style.opacity = '0'; sheet.querySelector('[data-close]').style.transition = 'opacity .2s'; setTimeout(() => sheet.remove(), 300); };
+    sheet.querySelector('[data-close]').addEventListener('click', close);
+    App.refreshIcons();
+    return { sheet, close };
+  }
+
+  function sheetHeader(title, subtitle) {
+    return `<div class="mb-4">
+      <div class="text-[18px] font-extrabold tracking-tight">${escapeHTML(title)}</div>
+      ${subtitle ? `<div class="text-[12px] text-ink-500 dark:text-ink-400 mt-0.5">${escapeHTML(subtitle)}</div>` : ''}
+    </div>`;
+  }
+
+  function field(label, inputHTML, hint) {
+    return `<label class="block mb-3">
+      <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400 font-bold mb-1.5">${label}</div>
+      ${inputHTML}
+      ${hint ? `<div class="text-[11px] text-ink-400 mt-1">${hint}</div>` : ''}
+    </label>`;
+  }
+
+  const inputClass = "w-full bg-ink-50 dark:bg-ink-800 border border-ink-200 dark:border-ink-700 rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition";
+
+  // ---------- TX MODAL ----------
+  function openTxModal(id) {
+    const editing = id ? DB.state.transactions.find(t => t.id === id) : null;
+    const data = editing || { type: 'expense', amount: '', category: '', date: todayISO(), note: '' };
+
+    const html = `
+      ${sheetHeader(editing ? 'Sửa giao dịch' : 'Thêm giao dịch', editing ? 'Cập nhật hoặc xóa giao dịch' : 'Ghi nhận thu hoặc chi')}
+      <div class="grid grid-cols-2 gap-2 mb-4 p-1 bg-ink-100 dark:bg-ink-800/60 rounded-xl">
+        <button id="t-income"  class="py-2 rounded-lg text-[13px] font-bold transition ${data.type==='income'  ? 'bg-emerald-500 text-white shadow' : 'text-ink-600 dark:text-ink-300'}">Thu nhập</button>
+        <button id="t-expense" class="py-2 rounded-lg text-[13px] font-bold transition ${data.type==='expense' ? 'bg-rose-500 text-white shadow'    : 'text-ink-600 dark:text-ink-300'}">Chi tiêu</button>
+      </div>
+      ${field('Số tiền (VND)', `<input id="f-amount" type="text" inputmode="numeric" class="${inputClass} tabular text-[20px] font-bold" placeholder="0" value="${data.amount ? fmtNum(data.amount) : ''}">`)}
+      ${field('Danh mục', `<div id="f-cats" class="flex flex-wrap gap-2"></div>`)}
+      ${field('Ngày', `<input id="f-date" type="date" class="${inputClass}" value="${data.date}">`)}
+      ${field('Ghi chú', `<textarea id="f-note" rows="2" class="${inputClass}" placeholder="Mô tả ngắn...">${escapeHTML(data.note || '')}</textarea>`)}
+      <div class="flex gap-2 mt-5">
+        ${editing ? `<button id="btn-del" class="flex-1 py-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-[14px]">Xóa</button>` : ''}
+        <button id="btn-save" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-white font-bold text-[14px] active:scale-[.98] transition">${editing ? 'Lưu thay đổi' : 'Lưu giao dịch'}</button>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+
+    let state = { ...data };
+
+    const renderCats = () => {
+      const cats = CATEGORIES[state.type] || [];
+      $('#f-cats').innerHTML = cats.map(c => `
+        <button data-cat="${c}" class="px-3 py-1.5 text-[12px] rounded-full font-semibold transition ${state.category===c ? 'bg-brand-500 text-white' : 'bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300'}">${c}</button>
+      `).join('');
+      $$('#f-cats button').forEach(b => b.addEventListener('click', () => { state.category = b.dataset.cat; renderCats(); }));
+    };
+    renderCats();
+
+    $('#t-income').onclick = () => {
+      state.type = 'income'; state.category = '';
+      $('#t-income').className  = 'py-2 rounded-lg text-[13px] font-bold transition bg-emerald-500 text-white shadow';
+      $('#t-expense').className = 'py-2 rounded-lg text-[13px] font-bold transition text-ink-600 dark:text-ink-300';
+      renderCats();
+    };
+    $('#t-expense').onclick = () => {
+      state.type = 'expense'; state.category = '';
+      $('#t-expense').className = 'py-2 rounded-lg text-[13px] font-bold transition bg-rose-500 text-white shadow';
+      $('#t-income').className  = 'py-2 rounded-lg text-[13px] font-bold transition text-ink-600 dark:text-ink-300';
+      renderCats();
+    };
+
+    // Live format amount
+    $('#f-amount').addEventListener('input', (e) => {
+      const raw = parseNum(e.target.value);
+      e.target.value = raw ? fmtNum(raw) : '';
+    });
+
+    $('#btn-save').onclick = () => {
+      const amount = parseNum($('#f-amount').value);
+      if (!amount || amount <= 0) return toast('Vui lòng nhập số tiền', 'error');
+      if (!state.category) return toast('Chọn danh mục', 'error');
+      const date = $('#f-date').value || todayISO();
+      const note = $('#f-note').value.trim();
+      const record = { id: editing?.id || uid(), type: state.type, amount, category: state.category, date, note };
+      if (editing) {
+        const idx = DB.state.transactions.findIndex(t => t.id === editing.id);
+        DB.state.transactions[idx] = record;
+      } else {
+        DB.state.transactions.push(record);
+      }
+      DB.save(); App.render(); close();
+      toast(editing ? 'Đã lưu thay đổi' : 'Đã thêm giao dịch');
+    };
+
+    if (editing) $('#btn-del').onclick = () => {
+      confirmDelete('Xóa giao dịch này?', () => {
+        DB.state.transactions = DB.state.transactions.filter(t => t.id !== editing.id);
+        DB.save(); App.render(); close();
+        toast('Đã xóa giao dịch');
+      });
+    };
+  }
+
+  // ---------- INVEST MODAL ----------
+  function openInvestModal(id) {
+    const editing = id ? DB.state.investments.find(x => x.id === id) : null;
+    const data = editing || { name: '', type: 'Tiết kiệm', purchaseDate: todayISO(), purchaseValue: '', currentValue: '', note: '' };
+    const html = `
+      ${sheetHeader(editing ? 'Sửa khoản đầu tư' : 'Thêm khoản đầu tư', 'Tiết kiệm, vàng, crypto, quỹ mở, trái phiếu...')}
+      ${field('Tên khoản đầu tư', `<input id="f-name" type="text" class="${inputClass}" placeholder="VD: Tiết kiệm Vietcombank" value="${escapeHTML(data.name)}">`)}
+      ${field('Loại tài sản', `<div id="f-type" class="flex flex-wrap gap-2"></div>`)}
+      <div class="grid grid-cols-2 gap-3">
+        ${field('Giá trị mua (₫)', `<input id="f-pv" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.purchaseValue ? fmtNum(data.purchaseValue) : ''}">`)}
+        ${field('Giá trị hiện tại (₫)', `<input id="f-cv" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.currentValue ? fmtNum(data.currentValue) : ''}">`)}
+      </div>
+      ${field('Ngày mua', `<input id="f-date" type="date" class="${inputClass}" value="${data.purchaseDate}">`)}
+      ${field('Ghi chú', `<textarea id="f-note" rows="2" class="${inputClass}" placeholder="Lãi suất, nền tảng, kỳ hạn...">${escapeHTML(data.note || '')}</textarea>`)}
+      <div class="flex gap-2 mt-5">
+        ${editing ? `<button id="btn-del" class="flex-1 py-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-[14px]">Xóa</button>` : ''}
+        <button id="btn-save" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold text-[14px] active:scale-[.98] transition">${editing ? 'Lưu thay đổi' : 'Thêm khoản đầu tư'}</button>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+
+    let selType = data.type;
+    const renderTypes = () => {
+      $('#f-type').innerHTML = INVEST_TYPES.map(t => `<button data-t="${t}" class="px-3 py-1.5 text-[12px] rounded-full font-semibold ${selType===t ? 'bg-emerald-500 text-white' : 'bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300'}">${t}</button>`).join('');
+      $$('#f-type button').forEach(b => b.addEventListener('click', () => { selType = b.dataset.t; renderTypes(); }));
+    };
+    renderTypes();
+
+    ['#f-pv', '#f-cv'].forEach(sel => $(sel).addEventListener('input', e => { const v = parseNum(e.target.value); e.target.value = v ? fmtNum(v) : ''; }));
+
+    $('#btn-save').onclick = () => {
+      const name = $('#f-name').value.trim();
+      const pv = parseNum($('#f-pv').value);
+      const cv = parseNum($('#f-cv').value);
+      if (!name) return toast('Nhập tên khoản đầu tư', 'error');
+      if (!pv || pv <= 0) return toast('Nhập giá trị mua hợp lệ', 'error');
+      const record = { id: editing?.id || uid(), name, type: selType, purchaseDate: $('#f-date').value || todayISO(), purchaseValue: pv, currentValue: cv || pv, note: $('#f-note').value.trim() };
+      if (editing) { const i = DB.state.investments.findIndex(x => x.id === editing.id); DB.state.investments[i] = record; }
+      else { DB.state.investments.push(record); }
+      DB.save(); App.render(); close();
+      toast(editing ? 'Đã lưu' : 'Đã thêm khoản đầu tư');
+    };
+    if (editing) $('#btn-del').onclick = () => confirmDelete('Xóa khoản đầu tư này?', () => { DB.state.investments = DB.state.investments.filter(x => x.id !== editing.id); DB.save(); App.render(); close(); toast('Đã xóa'); });
+  }
+
+  // ---------- STOCK MODAL ----------
+  function openStockModal(id) {
+    const editing = id ? DB.state.stocks.find(x => x.id === id) : null;
+    const data = editing || { ticker: '', quantity: '', costPrice: '', currentPrice: '', note: '' };
+    const html = `
+      ${sheetHeader(editing ? 'Sửa cổ phiếu' : 'Thêm cổ phiếu', 'Nhập mã, số lượng và giá')}
+      ${field('Mã cổ phiếu', `<input id="f-ticker" type="text" class="${inputClass} uppercase tracking-wider font-bold" placeholder="VD: FPT" value="${escapeHTML(data.ticker)}" maxlength="10">`)}
+      ${field('Số lượng (cp)', `<input id="f-qty" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.quantity ? fmtNum(data.quantity) : ''}">`)}
+      <div class="grid grid-cols-2 gap-3">
+        ${field('Giá vốn (₫)', `<input id="f-cost" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.costPrice ? fmtNum(data.costPrice) : ''}">`)}
+        ${field('Giá hiện tại (₫)', `<input id="f-cur" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.currentPrice ? fmtNum(data.currentPrice) : ''}">`)}
+      </div>
+      ${field('Ghi chú', `<textarea id="f-note" rows="2" class="${inputClass}" placeholder="Chiến lược, mục tiêu giá...">${escapeHTML(data.note || '')}</textarea>`)}
+      <div class="flex gap-2 mt-5">
+        ${editing ? `<button id="btn-del" class="flex-1 py-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-[14px]">Xóa</button>` : ''}
+        <button id="btn-save" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-[14px] active:scale-[.98] transition">${editing ? 'Lưu thay đổi' : 'Thêm cổ phiếu'}</button>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+
+    $('#f-ticker').addEventListener('input', e => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+    ['#f-qty', '#f-cost', '#f-cur'].forEach(s => $(s).addEventListener('input', e => { const v = parseNum(e.target.value); e.target.value = v ? fmtNum(v) : ''; }));
+
+    $('#btn-save').onclick = () => {
+      const ticker = $('#f-ticker').value.trim().toUpperCase();
+      const qty = parseNum($('#f-qty').value);
+      const cost = parseNum($('#f-cost').value);
+      const cur = parseNum($('#f-cur').value);
+      if (!ticker) return toast('Nhập mã cổ phiếu', 'error');
+      if (!qty || qty <= 0) return toast('Nhập số lượng hợp lệ', 'error');
+      if (!cost || cost <= 0) return toast('Nhập giá vốn', 'error');
+      const record = { id: editing?.id || uid(), ticker, quantity: qty, costPrice: cost, currentPrice: cur || cost, note: $('#f-note').value.trim() };
+      if (editing) { const i = DB.state.stocks.findIndex(x => x.id === editing.id); DB.state.stocks[i] = record; }
+      else { DB.state.stocks.push(record); }
+      DB.save(); App.render(); close();
+      toast(editing ? 'Đã lưu' : 'Đã thêm cổ phiếu');
+    };
+    if (editing) $('#btn-del').onclick = () => confirmDelete('Xóa cổ phiếu này?', () => { DB.state.stocks = DB.state.stocks.filter(x => x.id !== editing.id); DB.save(); App.render(); close(); toast('Đã xóa'); });
+  }
+
+  // ---------- RE MODAL ----------
+  function openREModal(id) {
+    const editing = id ? DB.state.realestates.find(x => x.id === id) : null;
+    const data = editing || { address: '', type: 'Căn hộ', purchasePrice: '', marketPrice: '', monthlyRent: '', note: '' };
+    const html = `
+      ${sheetHeader(editing ? 'Sửa bất động sản' : 'Thêm bất động sản', 'Địa chỉ, giá mua, giá thị trường, cho thuê')}
+      ${field('Địa chỉ / tên BĐS', `<input id="f-addr" type="text" class="${inputClass}" placeholder="VD: 12 Nguyễn Huệ, Q.1" value="${escapeHTML(data.address)}">`)}
+      ${field('Loại BĐS', `<div id="f-type" class="flex flex-wrap gap-2"></div>`)}
+      <div class="grid grid-cols-2 gap-3">
+        ${field('Giá mua (₫)', `<input id="f-pp" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.purchasePrice ? fmtNum(data.purchasePrice) : ''}">`)}
+        ${field('Giá thị trường (₫)', `<input id="f-mp" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.marketPrice ? fmtNum(data.marketPrice) : ''}">`)}
+      </div>
+      ${field('Tiền thuê / tháng (₫) — nếu có', `<input id="f-rent" type="text" inputmode="numeric" class="${inputClass} tabular" placeholder="0" value="${data.monthlyRent ? fmtNum(data.monthlyRent) : ''}">`)}
+      ${field('Ghi chú', `<textarea id="f-note" rows="2" class="${inputClass}" placeholder="Diện tích, sổ hồng, lịch sử...">${escapeHTML(data.note || '')}</textarea>`)}
+      <div class="flex gap-2 mt-5">
+        ${editing ? `<button id="btn-del" class="flex-1 py-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-[14px]">Xóa</button>` : ''}
+        <button id="btn-save" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 text-white font-bold text-[14px] active:scale-[.98] transition">${editing ? 'Lưu thay đổi' : 'Thêm BĐS'}</button>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+
+    let selType = data.type;
+    const renderTypes = () => {
+      $('#f-type').innerHTML = RE_TYPES.map(t => `<button data-t="${t}" class="px-3 py-1.5 text-[12px] rounded-full font-semibold ${selType===t ? 'bg-violet-500 text-white' : 'bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300'}">${t}</button>`).join('');
+      $$('#f-type button').forEach(b => b.addEventListener('click', () => { selType = b.dataset.t; renderTypes(); }));
+    };
+    renderTypes();
+
+    ['#f-pp', '#f-mp', '#f-rent'].forEach(s => $(s).addEventListener('input', e => { const v = parseNum(e.target.value); e.target.value = v ? fmtNum(v) : ''; }));
+
+    $('#btn-save').onclick = () => {
+      const address = $('#f-addr').value.trim();
+      const pp = parseNum($('#f-pp').value);
+      const mp = parseNum($('#f-mp').value);
+      const rent = parseNum($('#f-rent').value);
+      if (!address) return toast('Nhập địa chỉ', 'error');
+      if (!pp || pp <= 0) return toast('Nhập giá mua hợp lệ', 'error');
+      const record = { id: editing?.id || uid(), address, type: selType, purchasePrice: pp, marketPrice: mp || pp, monthlyRent: rent || 0, note: $('#f-note').value.trim() };
+      if (editing) { const i = DB.state.realestates.findIndex(x => x.id === editing.id); DB.state.realestates[i] = record; }
+      else { DB.state.realestates.push(record); }
+      DB.save(); App.render(); close();
+      toast(editing ? 'Đã lưu' : 'Đã thêm BĐS');
+    };
+    if (editing) $('#btn-del').onclick = () => confirmDelete('Xóa BĐS này?', () => { DB.state.realestates = DB.state.realestates.filter(x => x.id !== editing.id); DB.save(); App.render(); close(); toast('Đã xóa'); });
+  }
+
+  // ---------- SETTINGS SHEET ----------
+  function openSettingsSheet() {
+    const nw = calcNetWorth();
+    const totalRecords = DB.state.transactions.length + DB.state.investments.length + DB.state.stocks.length + DB.state.realestates.length;
+    const html = `
+      ${sheetHeader('Cài đặt & Sao lưu', 'Quản lý dữ liệu cá nhân của bạn')}
+      <div class="rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 p-4 text-white mb-4">
+        <div class="text-[11px] uppercase tracking-widest opacity-80">Tài sản ròng</div>
+        <div class="text-[20px] font-extrabold tabular">${fmtVND(nw.total)}</div>
+        <div class="text-[11px] opacity-90 mt-1">${totalRecords} bản ghi · Lưu cục bộ trên thiết bị</div>
+      </div>
+
+      <div class="space-y-2">
+        ${settingsRow('moon', 'Giao diện', `<button id="s-theme" class="px-3 py-1.5 text-[12px] rounded-full bg-ink-100 dark:bg-ink-800 font-semibold">${DB.state.settings.theme === 'dark' ? 'Tối' : 'Sáng'}</button>`)}
+        ${settingsRow('download', 'Xuất dữ liệu (JSON)', `<button id="s-export" class="px-3 py-1.5 text-[12px] rounded-full bg-brand-500 text-white font-semibold">Xuất</button>`)}
+        ${settingsRow('upload', 'Nhập dữ liệu (JSON)', `<button id="s-import" class="px-3 py-1.5 text-[12px] rounded-full bg-emerald-500 text-white font-semibold">Nhập</button>`)}
+        ${settingsRow('refresh-cw', 'Khôi phục dữ liệu mẫu', `<button id="s-reseed" class="px-3 py-1.5 text-[12px] rounded-full bg-amber-500 text-white font-semibold">Seed</button>`)}
+        ${settingsRow('trash-2', 'Xóa toàn bộ dữ liệu', `<button id="s-clear" class="px-3 py-1.5 text-[12px] rounded-full bg-rose-500 text-white font-semibold">Xóa</button>`)}
+      </div>
+
+      <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
+
+      <div class="mt-6 pt-5 border-t border-ink-200 dark:border-ink-800">
+        <div class="text-[11px] uppercase tracking-widest text-ink-500 dark:text-ink-400 font-bold mb-2">Cài đặt lên điện thoại</div>
+        <div class="text-[12px] text-ink-600 dark:text-ink-300 space-y-1.5">
+          <p><strong>iPhone (Safari):</strong> Bấm nút <i data-lucide="share" class="inline text-[14px]"></i> Chia sẻ → "Thêm vào Màn hình chính".</p>
+          <p><strong>Android (Chrome):</strong> Bấm menu ⋮ → "Cài đặt ứng dụng" hoặc "Thêm vào Màn hình chính".</p>
+        </div>
+      </div>
+
+      <div class="mt-6 text-center text-[11px] text-ink-400">
+        <div class="font-mono">Tuệ Finance v1.0</div>
+        <div class="mt-0.5">© ${new Date().getFullYear()} Lê Đình Chánh Tuệ · Built with ♥</div>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+
+    $('#s-theme').onclick = () => {
+      DB.state.settings.theme = DB.state.settings.theme === 'dark' ? 'light' : 'dark';
+      DB.save(); App.applyTheme(); App.render(); close(); toast('Đã đổi giao diện');
+    };
+    $('#s-export').onclick = () => {
+      const blob = new Blob([JSON.stringify(DB.state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `tue-finance-backup-${todayISO()}.json`; a.click();
+      URL.revokeObjectURL(url);
+      toast('Đã tải xuống file sao lưu');
+    };
+    $('#s-import').onclick = () => $('#import-file').click();
+    $('#import-file').addEventListener('change', (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!data || typeof data !== 'object') throw new Error('Invalid');
+          DB.state = { ...structuredClone(DEFAULT_STATE), ...data, settings: { ...DEFAULT_STATE.settings, ...(data.settings || {}) } };
+          DB.save(); App.applyTheme(); App.render(); close();
+          toast('Đã nhập dữ liệu thành công');
+        } catch (err) { toast('File không hợp lệ', 'error'); }
+      };
+      reader.readAsText(f);
+    });
+    $('#s-reseed').onclick = () => confirmDelete('Khôi phục dữ liệu mẫu? Dữ liệu hiện tại sẽ mất.', () => {
+      DB.state = structuredClone(DEFAULT_STATE); DB.seed(); DB.save(); App.render(); close(); toast('Đã khôi phục seed mẫu');
+    });
+    $('#s-clear').onclick = () => confirmDelete('Xóa TOÀN BỘ dữ liệu? Không thể hoàn tác.', () => {
+      DB.reset(); App.render(); close(); toast('Đã xóa toàn bộ');
+    });
+  }
+
+  function settingsRow(icon, label, control) {
+    return `<div class="flex items-center justify-between gap-3 rounded-xl bg-ink-50 dark:bg-ink-800/50 px-4 py-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <i data-lucide="${icon}" class="text-[18px] text-ink-500 dark:text-ink-400"></i>
+        <div class="text-[13px] font-semibold truncate">${label}</div>
+      </div>
+      <div class="flex-shrink-0">${control}</div>
+    </div>`;
+  }
+
+  // ---------- SEARCH SHEET ----------
+  function openSearchSheet() {
+    const html = `
+      ${sheetHeader('Tìm kiếm', 'Tìm trong giao dịch, đầu tư, cổ phiếu, BĐS')}
+      <input id="q" type="text" class="${inputClass}" placeholder="Nhập từ khóa..." autofocus />
+      <div id="q-results" class="mt-4 space-y-2 max-h-[60vh] overflow-y-auto"></div>
+    `;
+    const { close } = mountSheet(html);
+    const input = $('#q'); const results = $('#q-results');
+
+    const renderResults = (q) => {
+      q = q.toLowerCase().trim();
+      if (!q) { results.innerHTML = `<div class="text-center py-8 text-ink-400 text-[13px]">Bắt đầu nhập để tìm kiếm</div>`; return; }
+      const hits = [];
+      DB.state.transactions.forEach(t => { if ((t.category + ' ' + (t.note||'') + ' ' + t.amount).toLowerCase().includes(q)) hits.push({ kind: 'tx', t }); });
+      DB.state.investments.forEach(i => { if ((i.name + ' ' + i.type + ' ' + (i.note||'')).toLowerCase().includes(q)) hits.push({ kind: 'invest', i }); });
+      DB.state.stocks.forEach(s => { if ((s.ticker + ' ' + (s.note||'')).toLowerCase().includes(q)) hits.push({ kind: 'stock', s }); });
+      DB.state.realestates.forEach(r => { if ((r.address + ' ' + r.type + ' ' + (r.note||'')).toLowerCase().includes(q)) hits.push({ kind: 're', r }); });
+      if (!hits.length) { results.innerHTML = `<div class="text-center py-8 text-ink-400 text-[13px]">Không tìm thấy kết quả nào.</div>`; return; }
+      results.innerHTML = hits.slice(0, 30).map(h => {
+        if (h.kind === 'tx') return `<div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-3 cursor-pointer" onclick="document.querySelector('[data-close]').click(); openTxModal('${h.t.id}')"><div class="text-[12px] font-semibold">${escapeHTML(h.t.category)} · ${fmtDate(h.t.date)}</div><div class="text-[11px] text-ink-500 dark:text-ink-400">${escapeHTML(h.t.note || '')}</div><div class="text-[12px] font-bold tabular ${h.t.type==='income'?'text-emerald-500':'text-rose-500'}">${h.t.type==='income'?'+':'-'}${fmtVND(h.t.amount)}</div></div>`;
+        if (h.kind === 'invest') return `<div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-3 cursor-pointer" onclick="document.querySelector('[data-close]').click(); openInvestModal('${h.i.id}')"><div class="text-[12px] font-semibold">${escapeHTML(h.i.name)}</div><div class="text-[11px] text-ink-500 dark:text-ink-400">${escapeHTML(h.i.type)} · ${fmtVND(h.i.currentValue)}</div></div>`;
+        if (h.kind === 'stock') return `<div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-3 cursor-pointer" onclick="document.querySelector('[data-close]').click(); openStockModal('${h.s.id}')"><div class="text-[12px] font-semibold">${escapeHTML(h.s.ticker)} × ${fmtNum(h.s.quantity)}</div><div class="text-[11px] text-ink-500 dark:text-ink-400">Vốn ${fmtNum(h.s.costPrice)} · Hiện tại ${fmtNum(h.s.currentPrice)}</div></div>`;
+        if (h.kind === 're') return `<div class="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-3 cursor-pointer" onclick="document.querySelector('[data-close]').click(); openREModal('${h.r.id}')"><div class="text-[12px] font-semibold">${escapeHTML(h.r.address)}</div><div class="text-[11px] text-ink-500 dark:text-ink-400">${escapeHTML(h.r.type)} · ${fmtVND(h.r.marketPrice)}</div></div>`;
+      }).join('');
+    };
+    renderResults('');
+    input.addEventListener('input', e => renderResults(e.target.value));
+  }
+
+  // ---------- Helpers ----------
+  function confirmDelete(msg, onYes) {
+    const html = `
+      <div class="text-center py-2">
+        <div class="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 grid place-items-center mx-auto mb-3">
+          <i data-lucide="alert-triangle" class="text-[24px]"></i>
+        </div>
+        <div class="text-[16px] font-bold">${escapeHTML(msg)}</div>
+        <div class="text-[12px] text-ink-500 dark:text-ink-400 mt-1">Thao tác này không thể hoàn tác.</div>
+        <div class="flex gap-2 mt-5">
+          <button data-close class="flex-1 py-3 rounded-xl bg-ink-100 dark:bg-ink-800 font-bold text-[13px]">Hủy</button>
+          <button id="confirm-yes" class="flex-1 py-3 rounded-xl bg-rose-500 text-white font-bold text-[13px]">Đồng ý</button>
+        </div>
+      </div>
+    `;
+    const { close } = mountSheet(html);
+    $('#confirm-yes').onclick = () => { onYes(); close(); };
+  }
+
+  function toast(msg, kind = 'success') {
+    const root = $('#toast-root');
+    const div = document.createElement('div');
+    const colors = kind === 'error' ? 'bg-rose-500' : 'bg-ink-900 dark:bg-ink-100 dark:text-ink-900';
+    div.className = `pointer-events-auto rounded-2xl px-4 py-3 text-white text-[13px] font-semibold shadow-lift max-w-sm ${colors} sheet-enter`;
+    div.style.animation = 'fadeUp .25s ease-out both';
+    div.textContent = msg;
+    root.innerHTML = '';
+    root.appendChild(div);
+    setTimeout(() => { div.style.transition = 'opacity .25s, transform .25s'; div.style.opacity = '0'; div.style.transform = 'translateY(10px)'; setTimeout(() => div.remove(), 250); }, 2200);
+  }
+
+  // Expose modals globally for inline handlers
+  window.openTxModal = openTxModal;
+  window.openInvestModal = openInvestModal;
+  window.openStockModal = openStockModal;
+  window.openREModal = openREModal;
+  window.App = App;
+
+  // Boot
+  document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
